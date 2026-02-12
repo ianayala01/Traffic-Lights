@@ -2,26 +2,34 @@ FIRSTNAME=Ian
 LASTNAME=Ayala
 HW=1
 
-ROOTNAME=$(LASTNAME)_$(FIRSTNAME)_HW
-FOPTION=_main
-RUNOPTIONS=pigpio
+ROOTNAME=$(LASTNAME)_$(FIRSTNAME)_HW$(HW)
+
 CC=gcc
 CFLAGS= -g -I.
+DEPS=
+
+RUNOPTIONS =pigpio
 
 LIBS =
-DEPS =
-OBJ = $(ROOTNAME)_$(RUNOPTION).o
 
-TARGET = $(ROOTNAME)_$(RUNOPTION)
+ifeq ($(RUNOPTIONS),pigpio)
+	SRC = $(ROOTNAME)_pigpio.c
+	LIBS = -lpigpio -lrt -pthread -Wall
+else
+	SRC = $(ROOTNAME)_DRA.c
+	LIBS =
+endif
 
-%.o: %.c $(DEPS)
+OBJ = $(ROOTNAME)_$(RUNOPTIONS).o
+
+$(OBJ): $(SRC) $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(ROOTNAME)$(HW)$(FOPTION): $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)  $(LIBS)
+$(ROOTNAME)_$(RUNOPTIONS): $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 clean:
-	rm *.o $(ROOTNAME)$(HW)$(FOPTION)
+	rm *.o $(ROOTNAME)_pigpio $(ROOTNAME)_DRA
 
-run: $(ROOTNAME)$(HW)$(FOPTION)
-	./$(ROOTNAME)$(HW)$(FOPTION) $(RUNOPTIONS)
+run: $(ROOTNAME)_$(RUNOPTIONS)
+	sudo ./$(ROOTNAME)_$(RUNOPTIONS)
