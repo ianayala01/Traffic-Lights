@@ -1,0 +1,27 @@
+FIRSTNAME=Ian
+LASTNAME=Ayala
+HW=1
+
+ROOTNAME=$(LASTNAME)_$(FIRSTNAME)_HW
+FOPTION=_main
+RUNOPTIONS=pigpio
+CC=gcc
+CFLAGS= -g -I.
+
+LIBS =
+DEPS =
+OBJ = $(ROOTNAME)_$(RUNOPTION).o
+
+TARGET = $(ROOTNAME)_$(RUNOPTION)
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(ROOTNAME)$(HW)$(FOPTION): $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)  $(LIBS)
+
+clean:
+	rm *.o $(ROOTNAME)$(HW)$(FOPTION)
+
+run: $(ROOTNAME)$(HW)$(FOPTION)
+	./$(ROOTNAME)$(HW)$(FOPTION) $(RUNOPTIONS)
