@@ -12,7 +12,7 @@
 **************************************************************/
 
 
-#define BCM2708_PERI_BASE 0x3F0000000
+#define BCM2708_PERI_BASE 0x3F000000
 #define GPIO_BASE (BCM2708_PERI_BASE + 0X200000)
 
 #include <stdio.h>
@@ -46,6 +46,8 @@ const int yellowPin = 24;
 const int greenPin = 25;
 
 int main(){
+
+	setup_io();
 	// initialize int to correspond to gpio pins
 	int g;
 
