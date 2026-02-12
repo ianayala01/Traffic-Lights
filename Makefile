@@ -16,7 +16,7 @@ ifeq ($(RUNOPTIONS),pigpio)
 	SRC = $(ROOTNAME)_pigpio.c
 	LIBS = -lpigpio -lrt -pthread -Wall
 else
-	SRC = $(ROOTNAME)_DRA.c
+	SRC = $(ROOTNAME)_dra.c
 	LIBS =
 endif
 
@@ -29,7 +29,7 @@ $(ROOTNAME)_$(RUNOPTIONS): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 clean:
-	rm *.o $(ROOTNAME)_pigpio $(ROOTNAME)_DRA
+	rm *.o $(ROOTNAME)_pigpio $(ROOTNAME)_dra
 
 run: $(ROOTNAME)_$(RUNOPTIONS)
 	sudo ./$(ROOTNAME)_$(RUNOPTIONS)
