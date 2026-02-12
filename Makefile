@@ -15,21 +15,23 @@ LIBS =
 ifeq ($(RUNOPTIONS),pigpio)
 	SRC = $(ROOTNAME)_pigpio.c
 	LIBS = -lpigpio -lrt -pthread -Wall
+	TARGET = assignment1pigpio
 else
 	SRC = $(ROOTNAME)_dra.c
 	LIBS =
+	TARGET = assigment1b
 endif
 
-OBJ = $(ROOTNAME)_$(RUNOPTIONS).o
+OBJ = $(TARGET).o
 
 $(OBJ): $(SRC) $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-$(ROOTNAME)_$(RUNOPTIONS): $(OBJ)
+$(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 clean:
-	rm *.o $(ROOTNAME)_pigpio $(ROOTNAME)_dra
+	rm *.o assignment1pigpio assignment1b
 
-run: $(ROOTNAME)_$(RUNOPTIONS)
-	sudo ./$(ROOTNAME)_$(RUNOPTIONS)
+run: $(TARGET)
+	sudo ./$(TARGET)

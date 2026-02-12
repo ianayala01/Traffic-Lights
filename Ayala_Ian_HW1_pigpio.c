@@ -7,7 +7,8 @@
 *
 * File:: Ayala_Ian_HW1_pigpio.c
 *
-* Description:: 
+* Description:: This file uses the pigpio library to light 3
+*	LEDs sequentially
 *
 **************************************************************/
 

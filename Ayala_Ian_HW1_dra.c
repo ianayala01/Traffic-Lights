@@ -7,7 +7,8 @@
 *
 * File:: Ayala_Ian_HW1_dra.c
 *
-* Description:: 
+* Description:: This file initializes 3 LEDs and cycles through
+*	them by manipulating the Fuction Select Registers
 *
 **************************************************************/
 
