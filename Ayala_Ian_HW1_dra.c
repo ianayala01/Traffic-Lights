@@ -38,6 +38,7 @@ void waitSecs(double seconds);
 void inpGpio(int pinNum);
 void outGpio(int pinNum);
 
+// locations of set and clear registers
 #define GPIO_SET *(gpio+7)
 #define GPIO_CLR *(gpio+10)
 
@@ -52,11 +53,10 @@ int main(){
 	// initialize int to correspond to gpio pins
 	int pin;
 
-	// for pins 23-25
+	// iterate through each GPIO pin in use
 	for (pin = 23; pin <= 25; pin++){
-		// technically would be fine if only called once
-		// documentation says always to call this first to prevent accidental 011
-		// basically never assuming gpio pin bits are 000
+		// the documentation says to clear those bits before setting it to
+		// either output or an alt state, never assume they're already 000
 		inpGpio(pin);
 		// then set pin to output
 		outGpio(pin);
@@ -64,14 +64,15 @@ int main(){
 
 	// cycle colors 3 times
 	for (int i = 0; i < 3; i++){
+		// print statement just makes this more satisfying to me
 		printf("GREEN\n");
-		// set green to be on
+		// set green to be on by writing a 1 to it
 		GPIO_SET = 1<<greenPin;
 		// wait 6 seconds
 		waitSecs(6);
 
 		printf("YELLOW\n");
-		// turn green off
+		// turn green off by writing 0 to it
 		GPIO_CLR = 1<<greenPin;
 		// turn yellow on
 		GPIO_SET = 1<<yellowPin;
@@ -123,24 +124,27 @@ void outGpio(int pinNum){
 
 // converts seconds to microseconds for usleep() call
 void waitSecs(double seconds){
+	// this is so I can write fewer zeroes
 	int microSecs = seconds * 1000000;
 	usleep(microSecs);
 }
 
-
 void setup(){
 
-	// opens /dev/mem
-	if((mem_fd = open("/dev/mem", O_RDWR|O_SYNC)) < 0){
+	// open /dev/mem with read write
+	mem_fd = open("/dev/mem", O_RDWR|O_SYNC);
+	if (mem_fd < 0) {
 		printf("couldn't open /dev/mem\n");
 		exit(-1);
 	}
 
-	// memory map for GPIO
+	// memory map for GPIO to virtual mem
 	gpio_map = mmap(
 		NULL,
 		BLOCK_SIZE,
+		// this lets the program read/write
 		PROT_READ|PROT_WRITE,
+		// other processes 
 		MAP_SHARED,
 		mem_fd,
 		GPIO_BASE
