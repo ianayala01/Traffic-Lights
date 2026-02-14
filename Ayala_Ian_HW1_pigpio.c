@@ -17,7 +17,7 @@
 
 #include <pigpio.h>
 
-
+// set each pin to its respective GPIO
 const int redPin = 23;
 const int yellowPin = 24;
 const int greenPin = 25;
@@ -36,13 +36,13 @@ int main(void){
 	for (int i = 3; i > 0; i--){
 
 		printf("GREEN\n");
-		// set green pin to be ON
+		// set green pin to be ON by writing a 1 to it
 		gpioWrite(greenPin, 1);
 		// wait 6 seconds
 		time_sleep(6);
 
 		printf("YELLOW\n");
-		// set green pin to be OFF
+		// set green pin to be OFF by writing 0 to it
 		gpioWrite(greenPin,0);
 		// yellow pin ON
 		gpioWrite(yellowPin, 1);
