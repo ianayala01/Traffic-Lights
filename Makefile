@@ -19,7 +19,7 @@ ifeq ($(RUNOPTIONS),pigpio)
 else
 	SRC = $(ROOTNAME)_dra.c
 	LIBS =
-	TARGET = assigment1b
+	TARGET = assignment1b
 endif
 
 OBJ = $(TARGET).o

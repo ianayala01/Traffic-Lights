@@ -31,35 +31,35 @@ int mem_fd;
 void *gpio_map;
 // i/o access
 volatile unsigned *gpio;
-void setup_io();
-void hangOn(double seconds);
 
-// input must always precede OUT, input looks like this: 000
-#define INP_GPIO(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
-// output bits: 001
-#define OUT_GPIO(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
+// declare functions
+void setup();
+void waitSecs(double seconds);
+void inpGpio(int pinNum);
+void outGpio(int pinNum);
 
 #define GPIO_SET *(gpio+7)
 #define GPIO_CLR *(gpio+10)
 
+// this way I can easily change gpio pins
 const int redPin = 23;
 const int yellowPin = 24;
 const int greenPin = 25;
 
 int main(){
 
-	setup_io();
+	setup();
 	// initialize int to correspond to gpio pins
-	int g;
+	int pin;
 
 	// for pins 23-25
-	for (g = 23; g <= 25; g++){
+	for (pin = 23; pin <= 25; pin++){
 		// technically would be fine if only called once
 		// documentation says always to call this first to prevent accidental 011
 		// basically never assuming gpio pin bits are 000
-		INP_GPIO(g);
+		inpGpio(pin);
 		// then set pin to output
-		OUT_GPIO(g);
+		outGpio(pin);
 	}
 
 	// cycle colors 3 times
@@ -68,7 +68,7 @@ int main(){
 		// set green to be on
 		GPIO_SET = 1<<greenPin;
 		// wait 6 seconds
-		hangOn(6);
+		waitSecs(6);
 
 		printf("YELLOW\n");
 		// turn green off
@@ -76,27 +76,59 @@ int main(){
 		// turn yellow on
 		GPIO_SET = 1<<yellowPin;
 		// wait 1.5 seconds
-		hangOn(1.5);
+		waitSecs(1.5);
 
 		printf("RED\n");
 		// turn yellow off
 		GPIO_CLR = 1<<yellowPin;
 		// turn red on
 		GPIO_SET = 1<<redPin;
-		hangOn(5);
+		waitSecs(5);
 		// turn red off
 		GPIO_CLR = 1<<redPin;
 	}
 }
 
+// excessively breaking the example macros into steps
+// mostly for fun, partially for notes
+void inpGpio(int pinNum){
+	// figure out which FSEL current GPIO is in
+	int registerIndex = pinNum / 10;
+	volatile uint32_t *fsel = gpio + registerIndex;
+
+	// now to find which bits within the register
+	int pindex = pinNum % 10;
+	int bitPos = pindex *3;
+
+	// 000 is input, so simply clear those bits with AND NOT 111
+	*fsel = *fsel & ~(7 << bitPos);
+
+	printf("FSEL%d, bits: %d-%d cleared.\n", registerIndex, bitPos, bitPos+2);
+}
+
+void outGpio(int pinNum){
+	// in which FSEL is the pin?
+	int registerIndex = pinNum / 10;
+	volatile uint32_t *fsel = gpio + registerIndex;
+
+	// bits within register
+	int pindex = pinNum % 10;
+	int bitPos = pindex * 3;
+
+	// 001 is output, so bitwise OR 001
+	*fsel = *fsel | (1<< bitPos);
+
+	printf("FSEL%d, bits: %d-%d set to 001.\n", registerIndex, bitPos, bitPos+2);
+}
+
 // converts seconds to microseconds for usleep() call
-void hangOn(double seconds){
+void waitSecs(double seconds){
 	int microSecs = seconds * 1000000;
 	usleep(microSecs);
 }
 
 
-void setup_io(){
+void setup(){
 
 	// opens /dev/mem
 	if((mem_fd = open("/dev/mem", O_RDWR|O_SYNC)) < 0){
@@ -114,11 +146,12 @@ void setup_io(){
 		GPIO_BASE
 	);
 
+	// /dev/mem is no longer needed, close it
 	close(mem_fd);
 
 	if (gpio_map == MAP_FAILED){
-		printf("mmap error %d\n");
-		exit(-1);
+		printf("mmap error\n");
+		exit(-2);
 	}
 
 	gpio = (volatile unsigned *)gpio_map;
