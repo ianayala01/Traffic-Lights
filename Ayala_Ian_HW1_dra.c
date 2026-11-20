@@ -1,7 +1,7 @@
 /**************************************************************
 * Class:: CSC-615-01 Spring 2026
 * Name:: Ian Ayala
-* Student ID:: 923102528
+* Student ID::
 * Github-Name:: ianayala01
 * Project:: Assignment 1 - Traffic Light
 *
